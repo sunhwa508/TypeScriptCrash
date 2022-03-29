@@ -23,7 +23,7 @@ const fetchData = async <T>(path: string, params?: T) => {
 };
 
 export async function fetchCovidSummary<T>(): Promise<T> {
-  return fetchData('/summuary');
+  return fetchData('/summary');
 }
 
 export async function fetchCountryInfo<T>(

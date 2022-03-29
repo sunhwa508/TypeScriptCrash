@@ -1,3 +1,4 @@
+import Chart from 'chart.js/auto';
 import { SummaryType, PickCountriesDetailType } from 'Covid';
 import { fetchCountryInfo, fetchCovidSummary } from './api';
 import { getUnixTimestamp } from './utils/common';
@@ -9,13 +10,13 @@ function $<T extends HTMLElement>(selector: string): T {
   return element;
 }
 
-const confirmedTotal = $('.confirmed-total');
-const deathsTotal = $('.deaths');
-const recoveredTotal = $('.recovered');
-const lastUpdatedTime = $('.last-updated-time');
-const rankList = $('.rank-list');
-const deathsList = $('.deaths-list');
-const recoveredList = $('.recovered-list');
+const confirmedTotal = $<HTMLSpanElement>('.confirmed-total');
+const deathsTotal = $<HTMLParagraphElement>('.deaths');
+const recoveredTotal = $<HTMLParagraphElement>('.recovered');
+const lastUpdatedTime = $<HTMLParagraphElement>('.last-updated-time');
+const rankList = $<HTMLOListElement>('.rank-list');
+const deathsList = $<HTMLOListElement>('.deaths-list');
+const recoveredList = $<HTMLOListElement>('.recovered-list');
 const deathSpinner = createSpinnerElement('deaths-spinner');
 const recoveredSpinner = createSpinnerElement('recovered-spinner');
 
@@ -109,9 +110,8 @@ function setDeathsList(data: PickCountriesDetailType[]) {
   });
 }
 
-type ListType = Pick<HTMLElement, 'innerHTML'>;
 function clearDeathList(): void {
-  const list = deathsList as ListType;
+  const list = deathsList;
   list.innerHTML = '';
 }
 
@@ -164,13 +164,18 @@ async function setupData() {
   setLastUpdatedTimestamp(data);
 }
 
-function renderChart(data, labels) {
-  const ctx = $('#lineChart').getContext('2d');
-  // @ts-ignore
-  Chart.defaults.global.defaultFontColor = '#f5eaea';
-  // @ts-ignore
-  Chart.defaults.global.defaultFontFamily = 'Exo 2';
-  // @ts-ignore
+function renderChart(data: number[], labels: string[]) {
+  const $chartContainer = $('.chart-container');
+  $chartContainer.innerHTML = /*html*/ `
+    <canvas id="lineChart"
+            class="corona-chart"
+            style="width: 100%; height: 356px; background-color: #5b5656;"
+    ></canvas>`;
+  const $chart = $<HTMLCanvasElement>('#lineChart');
+  const ctx = $chart.getContext('2d');
+  if (ctx === null) throw new Error('canvas is null');
+  Chart.defaults.color = '#f5eaea';
+  Chart.defaults.font.family = 'Exo 2';
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -189,7 +194,7 @@ function renderChart(data, labels) {
 }
 
 function setChartData(data: PickCountriesDetailType[]) {
-  const chartData = data.slice(-14).map(value => value.Cases);
+  const chartData = data.slice(-14).map(value => +value.Cases);
   const chartLabel = data
     .slice(-14)
     .map(value => new Date(value.Date).toLocaleDateString().slice(5, -1));
