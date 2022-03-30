@@ -1,8 +1,18 @@
+import {
+  CountriesObjectType,
+  PickCountriesDetailType,
+  SummaryType,
+} from 'Covid';
+
 export default class Component {
   $target;
   $props;
-  $state?: any;
+  $state: {
+    data?: any;
+    total?: string;
+  };
   constructor($target: any, $props: any) {
+    this.$state = { data: [], total: '' };
     this.$target = $target;
     this.$props = $props;
     this.setup();
@@ -14,17 +24,18 @@ export default class Component {
   template() {
     //
   }
-  render() {
-    this.$target.innerHTML = this.template();
-    this.mounted();
-  }
   setEvent() {
     //
   }
   setup() {
     //
   }
-  setState(newState: any) {
+  render() {
+    this.$target.innerHTML = this.template();
+    this.mounted();
+  }
+
+  setState<T>(newState: T) {
     this.$state = { ...this.$state, ...newState };
     this.render();
   }

@@ -3,17 +3,13 @@ import Component from '../core/Component';
 import { getUnixTimestamp } from '../utils/common';
 
 export default class TotalRecoveredList extends Component {
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-
   setup() {
     const { data }: { data: PickCountriesDetailType[] } = this.$props;
     const sorted = data.sort(
       (a, b) => getUnixTimestamp(b.Date) - getUnixTimestamp(a.Date),
     );
 
-    this.setState({ data: sorted });
+    this.setState<{ data: PickCountriesDetailType[] }>({ data: sorted });
   }
 
   template() {
@@ -28,5 +24,9 @@ export default class TotalRecoveredList extends Component {
       )
       .join('');
     return html;
+  }
+
+  render() {
+    this.$target.innerHTML = this.template();
   }
 }

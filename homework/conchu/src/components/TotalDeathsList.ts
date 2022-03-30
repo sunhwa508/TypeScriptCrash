@@ -2,17 +2,13 @@ import { PickCountriesDetailType } from 'Covid';
 import Component from '../core/Component';
 import { getUnixTimestamp } from '../utils/common';
 export default class TotalDeathsList extends Component {
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-
   setup() {
     const { data }: { data: PickCountriesDetailType[] } = this.$props;
     const sorted = data.sort(
       (a, b) => getUnixTimestamp(b.Date) - getUnixTimestamp(a.Date),
     );
 
-    this.setState({ data: sorted });
+    this.setState<{ data: PickCountriesDetailType[] }>({ data: sorted });
   }
 
   template() {
@@ -23,11 +19,15 @@ export default class TotalDeathsList extends Component {
           `<li class="list-item-b flex align-center">
              <span class="deaths">${item.Cases}</span>
              <p class="country">${new Date(item.Date)
-               .toLocaleDateString()
+               .toLocaleString()
                .slice(0, -1)}</p>
            </li>`,
       )
       .join('');
     return html;
+  }
+
+  render() {
+    this.$target.innerHTML = this.template();
   }
 }
