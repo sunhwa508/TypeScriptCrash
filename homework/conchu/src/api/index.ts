@@ -12,9 +12,9 @@ interface SystemErrorInterface {
   message: string;
 }
 
-const fetchData = async <T>(path: string, params?: T) => {
+const fetchData = async (path: string) => {
   try {
-    const result = await api.get(path, params);
+    const result = await api.get(path);
     return result.data;
   } catch (error) {
     const err = error as SystemErrorInterface;
@@ -23,7 +23,7 @@ const fetchData = async <T>(path: string, params?: T) => {
 };
 
 export async function fetchCovidSummary<T>(): Promise<T> {
-  return fetchData('/summuary');
+  return fetchData('summary');
 }
 
 export async function fetchCountryInfo<T>(
