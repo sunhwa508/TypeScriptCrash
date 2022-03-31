@@ -10,6 +10,7 @@ import {
   TotalConfirmed,
 } from './components';
 import CountryChart from './components/Chart';
+import Spinner from './components/Spinner';
 import { $ } from './utils/common';
 
 // utils 타입
@@ -20,24 +21,6 @@ const lastUpdatedTime = $<HTMLParagraphElement>('.last-updated-time');
 const rankList = $<HTMLOListElement>('.rank-list');
 const deathsList = $<HTMLOListElement>('.deaths-list');
 const recoveredList = $<HTMLOListElement>('.recovered-list');
-
-const deathSpinner = createSpinnerElement('deaths-spinner');
-const recoveredSpinner = createSpinnerElement('recovered-spinner');
-
-function createSpinnerElement(id: string) {
-  const wrapperDiv = document.createElement('div');
-  wrapperDiv.setAttribute('id', id);
-  wrapperDiv.setAttribute(
-    'class',
-    'spinner-wrapper flex justify-center align-center',
-  );
-  const spinnerDiv = document.createElement('div');
-  spinnerDiv.setAttribute('class', 'ripple-spinner');
-  spinnerDiv.appendChild(document.createElement('div'));
-  spinnerDiv.appendChild(document.createElement('div'));
-  wrapperDiv.appendChild(spinnerDiv);
-  return wrapperDiv;
-}
 
 // state
 let isDeathLoading = false;
@@ -83,6 +66,7 @@ async function handleListClick(event: Event) {
 
   clearDeathList();
   clearRecoveredList();
+
   startLoadingAnimation();
   isDeathLoading = true;
   const deathResponse = await fetchCountryInfo<PickCountriesDetailType[]>(
@@ -99,10 +83,8 @@ async function handleListClick(event: Event) {
   );
   endLoadingAnimation();
 
-  TotalDeathsList(deathsList, deathResponse);
-  TotalRecoveredList(recoveredList, recoveredResponse);
-  setTotalDeathsByCountry(deathResponse);
-  setTotalRecoveredByCountry(recoveredResponse);
+  TotalDeathsList(deathsTotal, deathsList, deathResponse);
+  TotalRecoveredList(recoveredTotal, recoveredList, recoveredResponse);
   CountryChart(getNewCanvas(), confirmedResponse);
   isDeathLoading = false;
 }
@@ -112,26 +94,18 @@ function clearDeathList(): void {
   list.innerHTML = '';
 }
 
-function setTotalDeathsByCountry(data: PickCountriesDetailType[]) {
-  deathsTotal.innerText = data[0].Cases;
-}
-
 function clearRecoveredList() {
   recoveredList.innerHTML = '';
 }
 
-function setTotalRecoveredByCountry(data: PickCountriesDetailType[]) {
-  recoveredTotal.innerText = data[0].Cases;
-}
-
 function startLoadingAnimation() {
-  deathsList.appendChild(deathSpinner);
-  recoveredList.appendChild(recoveredSpinner);
+  Spinner(deathsList, 'deaths-spinner', true);
+  Spinner(recoveredList, 'recovered-spinner', true);
 }
 
 function endLoadingAnimation() {
-  deathsList.removeChild(deathSpinner);
-  recoveredList.removeChild(recoveredSpinner);
+  Spinner(deathsList, 'deaths-spinner', false);
+  Spinner(recoveredList, 'recovered-spinner', false);
 }
 
 async function setupData() {

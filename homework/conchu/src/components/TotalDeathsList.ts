@@ -2,11 +2,13 @@ import { PickCountriesDetailType } from 'Covid';
 import { getUnixTimestamp } from '../utils/common';
 
 const TotalDeathsList = (
+  $title: HTMLParagraphElement,
   $target: HTMLOListElement,
   data: PickCountriesDetailType[],
 ) => {
   let state: { result: PickCountriesDetailType[] } = { result: [] };
   const setState = () => {
+    $title.innerText = '';
     const sortedData = data.sort(
       (a, b) => getUnixTimestamp(b.Date) - getUnixTimestamp(a.Date),
     );
@@ -19,7 +21,7 @@ const TotalDeathsList = (
       .map(
         (item: PickCountriesDetailType) =>
           `<li class="list-item-b flex align-center">
-             <span class="recovered">${item.Cases}</span>
+             <span class="recovered">${item.Cases.toLocaleString()}</span>
              <p>${new Date(item.Date).toLocaleDateString().slice(0, -1)}</p>
            </li>`,
       )
@@ -28,6 +30,7 @@ const TotalDeathsList = (
   };
   const render = () => {
     setState();
+    $title.innerText = state.result[0].Cases.toLocaleString();
     $target.innerHTML = template();
   };
 

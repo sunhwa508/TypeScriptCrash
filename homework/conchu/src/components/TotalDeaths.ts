@@ -6,7 +6,7 @@ const TotalDeaths = ($target: HTMLParagraphElement, data: SummaryType) => {
     const result = data.Countries.reduce(
       (total, current) => (total += current.TotalDeaths),
       0,
-    ).toString();
+    ).toLocaleString();
     state = { result };
   };
 
