@@ -1,20 +1,19 @@
-import { CountriesObjectType, PickCountriesType, SummaryType } from 'Covid';
-import Component from '../core/Component';
+import { PickCountriesType, SummaryType } from 'Covid';
 
-export default class ConfirmCasesRank extends Component {
-  setup() {
-    const { data }: { data: SummaryType } = this.$props;
-    const sorted = data.Countries.sort(
+const ConfirmCasesRank = ($target: HTMLOListElement, data: SummaryType) => {
+  let state: { result: PickCountriesType[] } = { result: [] };
+
+  const setState = () => {
+    const sortedData = data.Countries.sort(
       (a, b) => b.TotalConfirmed - a.TotalConfirmed,
     );
-    this.setState<{ data: PickCountriesType[] }>({ data: sorted });
-  }
+    state = { result: sortedData };
+  };
 
-  template() {
-    const { data } = this.$state;
-    const html = data
+  const template = () => {
+    const html = state.result
       .map(
-        (item: CountriesObjectType) =>
+        (item: PickCountriesType) =>
           `<li class="list-item flex align-center" id=${item.Slug.toLocaleString()}>
              <span class="cases">${item.TotalConfirmed.toLocaleString()}</span>
              <p class="country">${item.Country}</p>
@@ -22,9 +21,13 @@ export default class ConfirmCasesRank extends Component {
       )
       .join('');
     return html;
-  }
+  };
 
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-}
+  const render = () => {
+    setState();
+    $target.innerHTML = template();
+  };
+
+  render();
+};
+export default ConfirmCasesRank;

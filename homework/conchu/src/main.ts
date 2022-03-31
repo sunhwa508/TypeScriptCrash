@@ -1,13 +1,15 @@
-import Chart from 'chart.js/auto';
 import { SummaryType, PickCountriesDetailType } from 'Covid';
 import { fetchCountryInfo, fetchCovidSummary } from './api';
-import ConfirmCasesRank from './components/ConfirmCasesRank';
-import TotalBoard from './components/TotalBoard';
-import TotalDeaths from './components/TotalDeaths';
-import TotalDeathsList from './components/TotalDeathsList';
-import TotalRecovered from './components/TotalRecover';
-import TotalRecoveredList from './components/TotalRecoveredList';
-import UpdateTimeStamp from './components/UpdateTimeStamp';
+import {
+  UpdateTimeStamp,
+  TotalRecoveredList,
+  TotalRecovered,
+  TotalDeathsList,
+  TotalDeaths,
+  ConfirmCasesRank,
+  TotalConfirmed,
+} from './components';
+import CountryChart from './components/Chart';
 import { $ } from './utils/common';
 
 // utils 타입
@@ -18,6 +20,7 @@ const lastUpdatedTime = $<HTMLParagraphElement>('.last-updated-time');
 const rankList = $<HTMLOListElement>('.rank-list');
 const deathsList = $<HTMLOListElement>('.deaths-list');
 const recoveredList = $<HTMLOListElement>('.recovered-list');
+
 const deathSpinner = createSpinnerElement('deaths-spinner');
 const recoveredSpinner = createSpinnerElement('recovered-spinner');
 
@@ -48,6 +51,17 @@ function startApp() {
 // events
 function initEvents() {
   rankList.addEventListener('click', handleListClick);
+}
+
+function getNewCanvas() {
+  const $chartContainer = $('.chart-container');
+  $chartContainer.innerHTML = /*html*/ `
+    <canvas id="lineChart"
+            class="corona-chart"
+            style="width: 100%; height: 356px; background-color: #5b5656;"
+    ></canvas>`;
+  const $chartCanvas = $<HTMLCanvasElement>('#lineChart');
+  return $chartCanvas;
 }
 
 async function handleListClick(event: Event) {
@@ -85,11 +99,11 @@ async function handleListClick(event: Event) {
   );
   endLoadingAnimation();
 
-  new TotalDeathsList(deathsList, { data: deathResponse });
-  new TotalRecoveredList(recoveredList, { data: deathResponse });
+  TotalDeathsList(deathsList, deathResponse);
+  TotalRecoveredList(recoveredList, recoveredResponse);
   setTotalDeathsByCountry(deathResponse);
   setTotalRecoveredByCountry(recoveredResponse);
-  setChartData(confirmedResponse);
+  CountryChart(getNewCanvas(), confirmedResponse);
   isDeathLoading = false;
 }
 
@@ -122,48 +136,11 @@ function endLoadingAnimation() {
 
 async function setupData() {
   const data = await fetchCovidSummary<SummaryType>();
-  new TotalDeaths(deathsTotal, { data });
-  new TotalRecovered(recoveredTotal, { data });
-  new ConfirmCasesRank(rankList, { data });
-  new TotalBoard(confirmedTotal, { data });
-  new UpdateTimeStamp(lastUpdatedTime, { data });
-}
-
-function renderChart(data: number[], labels: string[]) {
-  const $chartContainer = $('.chart-container');
-  $chartContainer.innerHTML = /*html*/ `
-    <canvas id="lineChart"
-            class="corona-chart"
-            style="width: 100%; height: 356px; background-color: #5b5656;"
-    ></canvas>`;
-  const $chart = $<HTMLCanvasElement>('#lineChart');
-  const ctx = $chart.getContext('2d');
-  if (ctx === null) throw new Error('canvas is null');
-  Chart.defaults.color = '#f5eaea';
-  Chart.defaults.font.family = 'Exo 2';
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Confirmed for the last two weeks',
-          backgroundColor: '#feb72b',
-          borderColor: '#feb72b',
-          data,
-        },
-      ],
-    },
-    options: {},
-  });
-}
-
-function setChartData(data: PickCountriesDetailType[]) {
-  const chartData = data.slice(-14).map(value => +value.Cases);
-  const chartLabel = data
-    .slice(-14)
-    .map(value => new Date(value.Date).toLocaleDateString().slice(5, -1));
-  renderChart(chartData, chartLabel);
+  TotalDeaths(deathsTotal, data);
+  TotalRecovered(recoveredTotal, data);
+  ConfirmCasesRank(rankList, data);
+  TotalConfirmed(confirmedTotal, data);
+  UpdateTimeStamp(lastUpdatedTime, data);
 }
 
 startApp();

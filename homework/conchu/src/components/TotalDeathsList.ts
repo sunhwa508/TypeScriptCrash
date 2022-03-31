@@ -1,33 +1,37 @@
 import { PickCountriesDetailType } from 'Covid';
-import Component from '../core/Component';
 import { getUnixTimestamp } from '../utils/common';
-export default class TotalDeathsList extends Component {
-  setup() {
-    const { data }: { data: PickCountriesDetailType[] } = this.$props;
-    const sorted = data.sort(
+
+const TotalDeathsList = (
+  $target: HTMLOListElement,
+  data: PickCountriesDetailType[],
+) => {
+  let state: { result: PickCountriesDetailType[] } = { result: [] };
+  const setState = () => {
+    const sortedData = data.sort(
       (a, b) => getUnixTimestamp(b.Date) - getUnixTimestamp(a.Date),
     );
 
-    this.setState<{ data: PickCountriesDetailType[] }>({ data: sorted });
-  }
+    state = { result: sortedData };
+  };
 
-  template() {
-    const { data } = this.$state;
-    const html = data
+  const template = () => {
+    const html = state.result
       .map(
         (item: PickCountriesDetailType) =>
           `<li class="list-item-b flex align-center">
-             <span class="deaths">${item.Cases}</span>
-             <p class="country">${new Date(item.Date)
-               .toLocaleString()
-               .slice(0, -1)}</p>
+             <span class="recovered">${item.Cases}</span>
+             <p>${new Date(item.Date).toLocaleDateString().slice(0, -1)}</p>
            </li>`,
       )
       .join('');
     return html;
-  }
+  };
+  const render = () => {
+    setState();
+    $target.innerHTML = template();
+  };
 
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-}
+  render();
+};
+
+export default TotalDeathsList;

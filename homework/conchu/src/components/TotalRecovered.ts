@@ -1,15 +1,19 @@
 import { SummaryType } from 'Covid';
 
-const UpdateTimeStamp = ($target: HTMLParagraphElement, data: SummaryType) => {
+const TotalRecovered = ($target: HTMLParagraphElement, data: SummaryType) => {
   let state = { result: '' };
   const setState = () => {
-    const result = new Date(data.Date).toLocaleString();
+    const result = data.Countries.reduce(
+      (total, current) => (total += current.TotalRecovered),
+      0,
+    ).toString();
     state = { result };
   };
 
   const template = () => {
     return state;
   };
+
   const render = () => {
     setState();
     $target.innerHTML = template().result;
@@ -17,4 +21,5 @@ const UpdateTimeStamp = ($target: HTMLParagraphElement, data: SummaryType) => {
 
   render();
 };
-export default UpdateTimeStamp;
+
+export default TotalRecovered;

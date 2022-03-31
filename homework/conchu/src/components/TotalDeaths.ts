@@ -1,21 +1,25 @@
 import { SummaryType } from 'Covid';
-import Component from '../core/Component';
-export default class TotalDeaths extends Component {
-  setup() {
-    const { data }: { data: SummaryType } = this.$props;
-    const total = data.Countries.reduce(
+
+const TotalDeaths = ($target: HTMLParagraphElement, data: SummaryType) => {
+  let state = { result: '' };
+  const setState = () => {
+    const result = data.Countries.reduce(
       (total, current) => (total += current.TotalDeaths),
       0,
-    ).toLocaleString();
-    this.setState<{ total: string }>({ total });
-  }
+    ).toString();
+    state = { result };
+  };
 
-  template() {
-    const { total } = this.$state;
-    return total;
-  }
+  const template = () => {
+    return state;
+  };
 
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-}
+  const render = () => {
+    setState();
+    $target.innerHTML = template().result;
+  };
+
+  render();
+};
+
+export default TotalDeaths;

@@ -1,20 +1,21 @@
 import { PickCountriesDetailType } from 'Covid';
-import Component from '../core/Component';
 import { getUnixTimestamp } from '../utils/common';
 
-export default class TotalRecoveredList extends Component {
-  setup() {
-    const { data }: { data: PickCountriesDetailType[] } = this.$props;
-    const sorted = data.sort(
+const TotalRecoveredList = (
+  $target: HTMLOListElement,
+  data: PickCountriesDetailType[],
+) => {
+  let state: { result: PickCountriesDetailType[] } = { result: [] };
+  const setState = () => {
+    const sortedData = data.sort(
       (a, b) => getUnixTimestamp(b.Date) - getUnixTimestamp(a.Date),
     );
 
-    this.setState<{ data: PickCountriesDetailType[] }>({ data: sorted });
-  }
+    state = { result: sortedData };
+  };
 
-  template() {
-    const { data } = this.$state;
-    const html = data
+  const template = () => {
+    const html = state.result
       .map(
         (item: PickCountriesDetailType) =>
           `<li class="list-item-b flex align-center">
@@ -24,9 +25,13 @@ export default class TotalRecoveredList extends Component {
       )
       .join('');
     return html;
-  }
+  };
+  const render = () => {
+    setState();
+    $target.innerHTML = template();
+  };
 
-  render() {
-    this.$target.innerHTML = this.template();
-  }
-}
+  render();
+};
+
+export default TotalRecoveredList;
