@@ -1,5 +1,6 @@
 import { SummaryType, PickCountriesDetailType } from 'Covid';
 import { fetchCountryInfo, fetchCovidSummary } from './api';
+import { $ } from './utils/common';
 import {
   UpdateTimeStamp,
   TotalRecoveredList,
@@ -8,10 +9,9 @@ import {
   TotalDeaths,
   ConfirmCasesRank,
   TotalConfirmed,
+  Spinner,
+  CountryChart,
 } from './components';
-import CountryChart from './components/Chart';
-import Spinner from './components/Spinner';
-import { $ } from './utils/common';
 
 // utils 타입
 const confirmedTotal = $<HTMLSpanElement>('.confirmed-total');
@@ -21,9 +21,6 @@ const lastUpdatedTime = $<HTMLParagraphElement>('.last-updated-time');
 const rankList = $<HTMLOListElement>('.rank-list');
 const deathsList = $<HTMLOListElement>('.deaths-list');
 const recoveredList = $<HTMLOListElement>('.recovered-list');
-
-// state
-let isDeathLoading = false;
 
 // methods
 function startApp() {
@@ -47,27 +44,28 @@ function getNewCanvas() {
   return $chartCanvas;
 }
 
-async function handleListClick(event: Event) {
-  let selectedId = '';
-  if (
-    event.target instanceof HTMLParagraphElement ||
-    event.target instanceof HTMLSpanElement
-  ) {
-    selectedId = event?.target?.parentElement?.id || '';
-  }
-  if (event.target instanceof HTMLLIElement) {
-    selectedId = event.target.id;
-  }
-  if (isDeathLoading) {
-    return;
-  }
+function getSelectedId(event: Event) {
+  const target = event.target as HTMLElement;
+  const selectedId = target?.id || target?.parentElement?.id || '';
+
   if (selectedId === 'united-states')
     return alert('데이터가 많아 총괄 현황은 제공하지 않아요😭');
 
+  return selectedId;
+}
+
+async function handleListClick(event: Event) {
+  let isDeathLoading = false;
+  const selectedId = getSelectedId(event);
+  if (!selectedId) return;
+  if (isDeathLoading) {
+    return;
+  }
+
   clearDeathList();
   clearRecoveredList();
-
   startLoadingAnimation();
+
   isDeathLoading = true;
   const deathResponse = await fetchCountryInfo<PickCountriesDetailType[]>(
     selectedId,

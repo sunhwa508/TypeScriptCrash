@@ -6,3 +6,5 @@ export { default as TotalRecovered } from './TotalRecovered';
 export { default as TotalDeathsList } from './TotalDeathsList';
 export { default as TotalRecoveredList } from './TotalRecoveredList';
 export { default as UpdateTimeStamp } from './UpdateTimeStamp';
+export { default as CountryChart } from './CountryChart';
+export { default as Spinner } from './Spinner';

@@ -7,14 +7,12 @@ const UpdateTimeStamp = ($target: HTMLParagraphElement, data: SummaryType) => {
     state = { result };
   };
 
-  const template = () => {
-    return state;
-  };
   const render = () => {
     setState();
-    $target.innerHTML = template().result;
+    $target.innerHTML = state.result;
   };
 
   render();
 };
+
 export default UpdateTimeStamp;
